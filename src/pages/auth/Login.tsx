@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { SubmitButton } from "@/modules/auth/components/SubmitButton";
 import { ErrorText } from "@/modules/auth/components/ErrorText";
 import { useLogin } from "@/modules/auth/hooks/useAuth";
+import { getPrimaryErrorMessage } from "@/lib/api-error";
 
 const schema = z.object({
   email: z.string().email(),
@@ -28,10 +29,10 @@ export default function Login() {
   const onSubmit = async (data: FormValues) => {
     try {
       await mutateAsync(data);
-      toast.success("Signed in");
+      toast.success("Welcome back! You’re signed in.");
       navigate("/");
-    } catch (e: any) {
-      toast.error(e?.message || "Sign in failed");
+    } catch (err) {
+      toast.error(getPrimaryErrorMessage(err, "We couldn’t sign you in. Please check your details and try again."));
     }
   };
 
@@ -69,7 +70,7 @@ export default function Login() {
             </Link>
           </div>
         </div>
-        <ErrorText message={(error as Error)?.message} />
+        <ErrorText error={error} />
         <SubmitButton className="w-full" loading={isPending}>
           Sign in
         </SubmitButton>

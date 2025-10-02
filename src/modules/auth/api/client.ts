@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { ApiError, normalizeErrorPayload } from "@/lib/api-error";
 import { tokenStorage } from "../storage";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -22,35 +23,62 @@ async function request<T>(method: HttpMethod, path: string, opts?: { body?: any;
       const { access } = tokenStorage.get();
       if (access) headers["Authorization"] = `Bearer ${access}`;
     }
-    const res = await fetch(buildUrl(path, query), {
+    return fetch(buildUrl(path, query), {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
       credentials: "include",
     });
-    return res;
   };
 
-  let res = await doFetch();
-  if (res.status === 401 && auth) {
-    const refreshed = await tryRefreshToken();
-    if (refreshed) {
-      res = await doFetch();
+  try {
+    let res = await doFetch();
+    if (res.status === 401 && auth) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        res = await doFetch();
+      }
     }
-  }
 
-  if (!res.ok) {
-    let msg = `HTTP ${res.status}`;
-    try {
-      const data = await res.json();
-      msg = data?.detail || data?.message || JSON.stringify(data);
-    } catch {
-      // ignore
+    const raw = await res.text();
+
+    if (!res.ok) {
+      let payload: unknown = undefined;
+      if (raw) {
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          payload = raw;
+        }
+      }
+      const normalized = normalizeErrorPayload(payload, res.status);
+      throw new ApiError({
+        message: normalized.message,
+        status: res.status,
+        details: normalized.details,
+        body: payload,
+      });
     }
-    throw new Error(msg);
+
+    if (!raw) {
+      return undefined as unknown as T;
+    }
+
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return raw as unknown as T;
+    }
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    const baseMessage = error instanceof Error ? error.message : "Unknown network error";
+    throw new ApiError({
+      message: "We couldn’t reach the server. Check your connection and try again.",
+      status: 0,
+      details: baseMessage ? [baseMessage] : [],
+      body: undefined,
+    });
   }
-  const text = await res.text();
-  return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
 }
 
 async function tryRefreshToken(): Promise<boolean> {

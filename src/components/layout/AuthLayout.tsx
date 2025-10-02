@@ -18,18 +18,24 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen grid place-items-center bg-background">
-      <div className="absolute top-4 right-4">
-        <ThemeSwitcher />
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-background via-background to-muted/60" />
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.15),_transparent_55%)] dark:bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.35),_transparent_65%)]" />
+      <div className="flex flex-1 flex-col px-6 py-10 sm:px-10">
+        <div className="flex items-center justify-between">
+          <div className="text-base font-semibold tracking-tight text-primary">LFPERP</div>
+          <ThemeSwitcher />
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <Card className="w-full max-w-md border border-border/60 bg-background/95 shadow-2xl backdrop-blur">
+            <CardHeader className="space-y-2 text-center">
+              <CardTitle className="text-3xl font-semibold tracking-tight">{title}</CardTitle>
+              {description && <CardDescription>{description}</CardDescription>}
+            </CardHeader>
+            <CardContent className="space-y-6">{children}</CardContent>
+          </Card>
+        </div>
       </div>
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
-        </CardHeader>
-        <CardContent>{children}</CardContent>
-      </Card>
-      <div className="absolute top-4 left-4 text-sm font-semibold">LFPERP</div>
     </div>
   );
 }

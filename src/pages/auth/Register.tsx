@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { SubmitButton } from "@/modules/auth/components/SubmitButton";
 import { ErrorText } from "@/modules/auth/components/ErrorText";
 import { useRegister } from "@/modules/auth/hooks/useAuth";
+import { getPrimaryErrorMessage } from "@/lib/api-error";
 
 const schema = z
   .object({
@@ -40,11 +41,11 @@ export default function Register() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await mutateAsync(values as any);
-      toast.success("Account created");
+      await mutateAsync(values);
+      toast.success("Your account is ready. Welcome aboard!");
       navigate("/");
-    } catch (e: any) {
-      toast.error(e?.message || "Registration failed");
+    } catch (err) {
+      toast.error(getPrimaryErrorMessage(err, "We couldn’t create your account. Please review the details and try again."));
     }
   };
 
@@ -125,7 +126,7 @@ export default function Register() {
             {...register("phone")}
           />
         </div>
-        <ErrorText message={(error as Error)?.message} />
+        <ErrorText error={error} />
         <SubmitButton className="w-full" loading={isPending}>
           Create account
         </SubmitButton>

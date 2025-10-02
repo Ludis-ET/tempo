@@ -15,7 +15,7 @@ export default function ForgotPassword() {
   const { register, handleSubmit, formState: { errors }, } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (_: FormValues) => {
-    toast.error("Password reset endpoint is not provided. Please configure when available.");
+    toast.info("Password reset isn’t set up yet. Please reach out to your administrator for assistance.");
   };
 
   return (

@@ -7,6 +7,8 @@ import { SubmitButton } from "@/modules/auth/components/SubmitButton";
 import { useProfile, useUpdateProfile } from "@/modules/auth/hooks/useAuth";
 import { ErrorText } from "@/modules/auth/components/ErrorText";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { getPrimaryErrorMessage } from "@/lib/api-error";
 
 const schema = z.object({
   first_name: z.string().min(1, "Required").optional().or(z.literal("")),
@@ -38,11 +40,16 @@ export default function ProfilePage() {
   }, [data, reset]);
 
   const onSubmit = async (values: FormValues) => {
-    await mutateAsync(values);
+    try {
+      await mutateAsync(values);
+      toast.success("Your profile has been updated.");
+    } catch (err) {
+      toast.error(getPrimaryErrorMessage(err, "We couldn’t update your profile. Please try again."));
+    }
   };
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading profile…</div>;
-  if (error) return <ErrorText message={(error as Error)?.message} />;
+  if (error) return <ErrorText error={error} />;
 
   return (
     <Card>
@@ -64,7 +71,7 @@ export default function ProfilePage() {
             <InputField label="Department" {...register("department")} error={errors.department?.message} />
             <InputField label="Position" {...register("position")} error={errors.position?.message} />
           </div>
-          <ErrorText message={(updateError as Error)?.message} />
+          <ErrorText error={updateError} />
           <SubmitButton loading={isPending}>Save changes</SubmitButton>
         </form>
       </CardContent>

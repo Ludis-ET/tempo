@@ -6,6 +6,8 @@ import { InputField } from "@/components/ui/input-field";
 import { SubmitButton } from "@/modules/auth/components/SubmitButton";
 import { useChangePassword } from "@/modules/auth/hooks/useAuth";
 import { toast } from "sonner";
+import { ErrorText } from "@/modules/auth/components/ErrorText";
+import { getPrimaryErrorMessage } from "@/lib/api-error";
 
 const schema = z
   .object({
@@ -18,12 +20,17 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 export default function ChangePasswordPage() {
-  const { mutateAsync, isPending } = useChangePassword();
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const { mutateAsync, isPending, error } = useChangePassword();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    await mutateAsync({ old_password: values.old_password, new_password: values.new_password });
-    toast.success("Password changed successfully");
+    try {
+      await mutateAsync({ old_password: values.old_password, new_password: values.new_password });
+      toast.success("Your password has been updated.");
+      reset();
+    } catch (err) {
+      toast.error(getPrimaryErrorMessage(err, "We couldn’t change your password. Please try again."));
+    }
   };
 
   return (
@@ -39,6 +46,7 @@ export default function ChangePasswordPage() {
             <InputField label="New password" type="password" {...register("new_password")} error={errors.new_password?.message} />
             <InputField label="Confirm new password" type="password" {...register("confirm")} error={errors.confirm?.message} />
           </div>
+          <ErrorText error={error} />
           <SubmitButton loading={isPending}>Update password</SubmitButton>
         </form>
       </CardContent>
