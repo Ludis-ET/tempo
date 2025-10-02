@@ -19,7 +19,11 @@ type FormValues = z.infer<typeof schema>;
 export default function Login() {
   const navigate = useNavigate();
   const { mutateAsync, isPending, error } = useLogin();
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -32,19 +36,43 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Sign in" description="Access your NovaERP account.">
+    <AuthLayout title="Sign in" description="Access your LFPERP account.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <InputField label="Email" type="email" placeholder="you@company.com" error={errors.email?.message} {...register("email")} />
-        <InputField label="Password" type="password" placeholder="••••••••" error={errors.password?.message} {...register("password")} />
+        <InputField
+          label="Email"
+          type="email"
+          placeholder="you@company.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+        <InputField
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          {...register("password")}
+        />
         <div className="flex items-center justify-between text-sm">
-          <Link to="/auth/forgot" className="text-primary underline-offset-4 hover:underline">Forgot password?</Link>
+          <Link
+            to="/auth/forgot"
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Forgot password?
+          </Link>
           <div>
             <span className="text-muted-foreground">No account? </span>
-            <Link to="/auth/register" className="text-primary underline-offset-4 hover:underline">Create one</Link>
+            <Link
+              to="/auth/register"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Create one
+            </Link>
           </div>
         </div>
         <ErrorText message={(error as Error)?.message} />
-        <SubmitButton className="w-full" loading={isPending}>Sign in</SubmitButton>
+        <SubmitButton className="w-full" loading={isPending}>
+          Sign in
+        </SubmitButton>
       </form>
     </AuthLayout>
   );
