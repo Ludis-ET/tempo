@@ -108,9 +108,15 @@ export default function Index() {
             <CardDescription>Quick links to auth pages for QA.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
-            <Button asChild><a href="/auth/login">Go to Sign in</a></Button>
-            <Button asChild variant="secondary"><a href="/auth/register">Create account</a></Button>
-            <Button asChild variant="outline"><a href="/auth/forgot">Reset password</a></Button>
+            <Button asChild>
+              <a href="/auth/login">Go to Sign in</a>
+            </Button>
+            <div className="rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm text-muted-foreground">
+              Access is provisioned by your system administrator.
+            </div>
+            <Button asChild variant="outline">
+              <a href="/auth/forgot">Reset password</a>
+            </Button>
           </CardContent>
         </Card>
         <Card className="lg:col-span-2">

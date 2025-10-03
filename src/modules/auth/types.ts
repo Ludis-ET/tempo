@@ -21,32 +21,6 @@ export const loginResponseSchema = z
   .passthrough();
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 
-export const registerRequestSchema = z.object({
-  username: z.string().min(2),
-  email: z.string().email(),
-  first_name: z.string().min(1),
-  last_name: z.string().min(1),
-  password: z.string().min(8),
-  password_confirm: z.string().min(8),
-  employee_id: z.string().min(1),
-  department: z.string().min(1),
-  position: z.string().min(1),
-  phone: z.string().min(4),
-});
-export type RegisterRequest = z.infer<typeof registerRequestSchema>;
-
-export const registerResponseSchema = z.object({
-  message: z.string().optional(),
-  user: z.record(z.any()).optional(),
-  tokens: z
-    .object({
-      refresh: z.string(),
-      access: z.string(),
-    })
-    .optional(),
-});
-export type RegisterResponse = z.infer<typeof registerResponseSchema>;
-
 export const profileSchema = z.object({
   email: z.string().email().optional(),
   username: z.string().optional(),

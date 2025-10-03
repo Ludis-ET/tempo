@@ -2,8 +2,6 @@ import { apiClient } from "./client";
 import type {
   LoginRequest,
   LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
   Profile,
   ChangePasswordRequest,
   RefreshRequest,
@@ -14,7 +12,6 @@ import type {
 
 export const endpoints = {
   login: (body: LoginRequest) => apiClient.post<LoginResponse>("/api/v1/auth/login/", body, false),
-  register: (body: RegisterRequest) => apiClient.post<RegisterResponse>("/api/v1/auth/register/", body, false),
   // Profile
   getProfile: () => apiClient.get<Profile>("/api/v1/auth/profile/"),
   putProfile: (body: Profile) => apiClient.put<Profile>("/api/v1/auth/profile/", body),

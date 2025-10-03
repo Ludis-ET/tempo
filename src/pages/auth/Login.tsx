@@ -60,15 +60,9 @@ export default function Login() {
           >
             Forgot password?
           </Link>
-          <div>
-            <span className="text-muted-foreground">No account? </span>
-            <Link
-              to="/auth/register"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Create one
-            </Link>
-          </div>
+          <span className="text-muted-foreground">
+            Need access? Contact your administrator.
+          </span>
         </div>
         <ErrorText error={error} />
         <SubmitButton className="w-full" loading={isPending}>
