@@ -21,6 +21,7 @@ import ChangePasswordPage from "@/pages/auth/ChangePassword";
 import UsersPage from "@/pages/admin/Users";
 import ComponentsPage from "@/pages/Components";
 import { ProtectedRoute } from "@/modules/auth/routes/ProtectedRoute";
+import AccountsListPage from "@/pages/customers/AccountsList";
 
 const queryClient = new QueryClient();
 
@@ -47,22 +48,167 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route path="/orders" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Orders" description="Manage sales orders, statuses, and fulfillment." /></AppLayout></ProtectedRoute>} />
-              <Route path="/customers" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Customers" description="Manage customer accounts and profiles." /></AppLayout></ProtectedRoute>} />
-              <Route path="/products" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Products" description="Catalog, pricing, and variants." /></AppLayout></ProtectedRoute>} />
-              <Route path="/inventory" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Inventory" description="Stock levels, warehouses, and movements." /></AppLayout></ProtectedRoute>} />
-              <Route path="/suppliers" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Suppliers" description="Vendors and purchase orders." /></AppLayout></ProtectedRoute>} />
-              <Route path="/invoices" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Invoices" description="Billing, payments, and AR." /></AppLayout></ProtectedRoute>} />
-              <Route path="/reports" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Reports" description="KPIs and analytics dashboards." /></AppLayout></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><AppLayout><PlaceholderPage title="Preferences" description="Configure system settings and user preferences." /></AppLayout></ProtectedRoute>} />
-              <Route path="/search" element={<ProtectedRoute><AppLayout><SearchPage /></AppLayout></ProtectedRoute>} />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Orders"
+                        description="Manage sales orders, statuses, and fulfillment."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/customers"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <AccountsListPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/products"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Products"
+                        description="Catalog, pricing, and variants."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Inventory"
+                        description="Stock levels, warehouses, and movements."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/suppliers"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Suppliers"
+                        description="Vendors and purchase orders."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/invoices"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Invoices"
+                        description="Billing, payments, and AR."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Reports"
+                        description="KPIs and analytics dashboards."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <PlaceholderPage
+                        title="Preferences"
+                        description="Configure system settings and user preferences."
+                      />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <SearchPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-              <Route path="/auth/profile" element={<ProtectedRoute><AppLayout><ProfilePage /></AppLayout></ProtectedRoute>} />
-              <Route path="/auth/change-password" element={<ProtectedRoute><AppLayout><ChangePasswordPage /></AppLayout></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute><AppLayout><UsersPage /></AppLayout></ProtectedRoute>} />
-              <Route path="/components" element={<ProtectedRoute><AppLayout><ComponentsPage /></AppLayout></ProtectedRoute>} />
+              <Route
+                path="/auth/profile"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ProfilePage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/auth/change-password"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ChangePasswordPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <UsersPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/components"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ComponentsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-              <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
+              <Route
+                path="*"
+                element={
+                  <AppLayout>
+                    <NotFound />
+                  </AppLayout>
+                }
+              />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

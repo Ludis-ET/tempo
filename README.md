@@ -10,7 +10,6 @@ This is the frontend for the ERP system, built with **React, TypeScript, Redux T
 - **TypeScript** – static typing
 - **Redux Toolkit** – global state management
 - **TanStack Query** – API data fetching & caching
-- **Axios** – HTTP requests
 - **TailwindCSS** – styling
 - **React Router** – routing
 
@@ -40,24 +39,35 @@ src/
 ## ⚡️ Installation
 
 ```bash
-git clone https://github.com/lfpcode/frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
+```
+
+Set the API base URL in a `.env` file (see `.env.example`):
+
+```bash
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 ---
 
 ### 🛠 Scripts
 
-- `npm run dev`     – start dev server  
-- `npm run build`   – build for production  
-- `npm run preview` – preview production build  
+- `pnpm run dev` – start dev server
+- `pnpm run build` – build for production
+- `pnpm run preview` – preview production build
 
 ---
 
-### ✅ Next Steps
+## ✨ Feature Highlights
 
-- Set up Redux store and slices under `src/store` and `src/features`.  
-- Configure React Query provider in `App.tsx`.  
-- Build core layouts (sidebar, navbar, dashboard).  
-- Create base pages (Login, Dashboard, Users, Settings).  
+- **Refined dark theme** with balanced contrast for better readability across navigation and data-heavy views.
+- **Customers ▸ Accounts** page with server-backed filtering (search, country, status, account manager, payment method), ordering, and pagination.
+
+---
+
+## 📘 Next Steps
+
+- Wire additional Core resources (suppliers, payment methods) into the navigation.
+- Expand tables with inline actions (edit, archive) and export capabilities.
+- Add dedicated query option loaders for account managers and payment methods once supporting endpoints are available.
