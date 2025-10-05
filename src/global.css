@@ -137,7 +137,11 @@
 
   .dark body {
     background-image:
-      radial-gradient(at 20% 20%, hsla(217, 88%, 64%, 0.12) 0px, transparent 50%),
+      radial-gradient(
+        at 20% 20%,
+        hsla(217, 88%, 64%, 0.12) 0px,
+        transparent 50%
+      ),
       radial-gradient(at 80% 0%, hsla(204, 80%, 64%, 0.1) 0px, transparent 55%),
       linear-gradient(160deg, hsl(222 34% 8%) 0%, hsl(222 24% 14%) 100%);
     background-attachment: fixed;
@@ -149,5 +153,27 @@
   body,
   *:where(:not(.no-theme-transition)) {
     @apply transition-colors duration-300;
+  }
+}
+
+@layer base {
+  #nprogress {
+    pointer-events: none;
+  }
+
+  #nprogress .bar {
+    background-color: hsl(var(--primary));
+    height: 3px;
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.45);
+  }
+
+  #nprogress .peg {
+    box-shadow:
+      0 0 10px hsl(var(--primary) / 0.7),
+      0 0 5px hsl(var(--primary) / 0.4);
+  }
+
+  #nprogress .spinner {
+    display: none !important;
   }
 }

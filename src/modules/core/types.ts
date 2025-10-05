@@ -59,6 +59,34 @@ export type Account = {
   shipping_address: number | null;
 };
 
+export type AccountPayload = {
+  company_name: string;
+  vat_number?: string | null;
+  tax_code?: string | null;
+  address?: string | null;
+  city?: string | null;
+  province?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  abi?: string | null;
+  cab?: string | null;
+  iban?: string | null;
+  recipient_code?: string | null;
+  certified_email?: string | null;
+  notes?: string | null;
+  is_active: boolean;
+  legacy_id?: number | null;
+  crm_id?: string | null;
+  account_manager?: number | null;
+  payment_method?: number | null;
+  carrier?: string | null;
+  vat_rate?: number | null;
+  shipping_address?: number | null;
+};
+
 export type PaginatedResponse<T> = {
   count: number;
   next: string | null;

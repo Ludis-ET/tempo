@@ -1,139 +1,328 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputField } from "@/components/ui/input-field";
-import { Combobox } from "@/components/ui/combobox";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { toast } from "sonner";
-
-interface Order { id: number; orderNo: string; customer: string; amount: number; status: "Pending" | "Shipped" | "Delivered" | "Cancelled" }
-
-const sampleOrders: Order[] = Array.from({ length: 42 }).map((_, i) => ({
-  id: i + 1,
-  orderNo: `SO-${1000 + i}`,
-  customer: ["Acme Inc.", "Globex", "Umbrella", "Initech"][i % 4],
-  amount: Math.round((Math.random() * 900 + 100) * 100) / 100,
-  status: ["Pending", "Shipped", "Delivered", "Cancelled"][i % 4] as Order["status"],
-}));
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowUpRight,
+  Globe2,
+  RefreshCcw,
+  UserCheck,
+  Users,
+} from "lucide-react";
+import { useAccounts } from "@/modules/core/hooks/useAccounts";
+import type { Account } from "@/modules/core/types";
+import { cn } from "@/lib/utils";
 
 export default function Index() {
-  const [combo, setCombo] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { data, isLoading, isFetching, isError, error, refetch } = useAccounts({
+    page: 1,
+    ordering: "-updated_at",
+  });
 
-  const orderColumns: ColumnDef<Order>[] = [
-    { key: "orderNo", header: "Order #", sortable: true },
-    { key: "customer", header: "Customer", sortable: true },
-    { key: "amount", header: "Amount", sortable: true, cell: (r) => `$${r.amount.toFixed(2)}` },
-    { key: "status", header: "Status", sortable: true },
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+    []
+  );
+
+  const recentAccounts: Account[] = useMemo(
+    () => data?.results.slice(0, 6) ?? [],
+    [data?.results]
+  );
+  const activeOnPage = useMemo(
+    () => recentAccounts.filter((account) => account.is_active).length,
+    [recentAccounts]
+  );
+  const distinctCountries = useMemo(() => {
+    const set = new Set<string>();
+    recentAccounts.forEach((account) => {
+      if (account.country) set.add(account.country);
+    });
+    return set.size;
+  }, [recentAccounts]);
+  const lastUpdated = recentAccounts[0]?.updated_at;
+
+  const metricCards = [
+    {
+      label: "Customer accounts",
+      value: data ? numberFormatter.format(data.count) : null,
+      icon: Users,
+      footnote: isFetching
+        ? "Refreshing…"
+        : "Total records managed in the system.",
+    },
+    {
+      label: "Active (this page)",
+      value: data ? `${activeOnPage}/${recentAccounts.length || 0}` : null,
+      icon: UserCheck,
+      footnote: "Snapshot of active customers in the latest results.",
+    },
+    {
+      label: "Countries represented",
+      value: data ? numberFormatter.format(distinctCountries) : null,
+      icon: Globe2,
+      footnote: "Unique billing countries in the latest accounts.",
+    },
+    {
+      label: "Last update",
+      value: lastUpdated
+        ? dateFormatter.format(new Date(lastUpdated))
+        : data
+          ? "—"
+          : null,
+      icon: RefreshCcw,
+      footnote: lastUpdated
+        ? "Most recently updated customer."
+        : "No accounts found yet.",
+    },
   ];
 
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Demonstration of reusable, theme-aware UI components.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid sm:grid-cols-2 gap-4">
-            <InputField label="Email" type="email" placeholder="name@company.com" description="We'll never share your email." />
-            <InputField label="Password" type="password" placeholder="••••••••" success="Strong password" />
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">Searchable Select</label>
-              <Combobox
-                value={combo}
-                onChange={(v) => setCombo(v)}
-                options={[{ label: "Sales", value: "sales" }, { label: "Inventory", value: "inventory" }, { label: "Finance", value: "finance" }, { label: "HR", value: "hr" }]}
-                placeholder="Choose a module"
-              />
-            </div>
-            <div className="flex items-end gap-2">
-              <Button onClick={() => toast.success("Saved successfully")}>Primary</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="destructive">Danger</Button>
-              <Button variant="outline" disabled>
-                Disabled
-              </Button>
-            </div>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">Open Modal</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Sample Dialog</DialogTitle>
-                  <DialogDescription>Modal with header, body and footer.</DialogDescription>
-                </DialogHeader>
-                <div className="text-sm text-muted-foreground">Use this dialog to confirm actions or display forms.</div>
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button onClick={() => { setOpen(false); toast.info("Confirmed"); }}>Confirm</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>Alert variants for state feedback.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Alert>
-              <AlertTitle>Info</AlertTitle>
-              <AlertDescription>System maintenance scheduled tonight.</AlertDescription>
-            </Alert>
-            <Alert className="border-success/50 text-success">
-              <AlertTitle>Success</AlertTitle>
-              <AlertDescription>Operation completed successfully.</AlertDescription>
-            </Alert>
-            <Alert className="border-warning/50 text-warning">
-              <AlertTitle>Warning</AlertTitle>
-              <AlertDescription>Inventory threshold reached.</AlertDescription>
-            </Alert>
-            <Alert variant="destructive">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>Failed to sync with server.</AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">ERP Overview</h1>
+          <p className="text-sm text-muted-foreground">
+            Monitor customer health, track recent updates, and jump into
+            detailed workflows.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            Refresh data
+          </Button>
+          <Button onClick={() => navigate("/customers")}>
+            Manage accounts
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Authentication (Testing)</CardTitle>
-            <CardDescription>Quick links to auth pages for QA.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            <Button asChild>
-              <a href="/auth/login">Go to Sign in</a>
-            </Button>
-            <div className="rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm text-muted-foreground">
-              Access is provisioned by your system administrator.
-            </div>
-            <Button asChild variant="outline">
-              <a href="/auth/forgot">Reset password</a>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>Sortable, paginated, selectable table.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable<Order>
-              columns={orderColumns}
-              data={sampleOrders}
-              caption="Orders overview"
-              onSelectionChange={() => {}}
-            />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metricCards.map((metric, index) => (
+          <Card key={metric.label} className="overflow-hidden">
+            <CardContent className="flex items-center justify-between gap-3 py-6">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {metric.label}
+                </p>
+                {isLoading ? (
+                  <Skeleton className="mt-2 h-6 w-24" />
+                ) : (
+                  <p className="mt-2 text-2xl font-semibold">
+                    {metric.value ?? "—"}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {metric.footnote}
+                </p>
+              </div>
+              <div
+                className={cn(
+                  "rounded-full p-3",
+                  index === 0
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                <metric.icon className="h-5 w-5" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    </>
+
+      <Card>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Recently updated accounts</CardTitle>
+            <CardDescription>
+              Latest customer changes synced from the core platform.
+            </CardDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/customers")}
+          >
+            View all
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isError ? (
+            <Alert variant="destructive">
+              <AlertTitle>Unable to load accounts</AlertTitle>
+              <AlertDescription>
+                {error instanceof Error
+                  ? error.message
+                  : "Please try again later."}
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Account manager</TableHead>
+                  <TableHead>Country</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Updated</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-40" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-5 w-16" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="ml-auto h-4 w-24" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : recentAccounts.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-10 text-center text-sm text-muted-foreground"
+                    >
+                      No accounts available yet.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  recentAccounts.map((account) => (
+                    <TableRow key={account.id} className="hover:bg-muted/50">
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {account.company_name}
+                          </span>
+                          {account.code ? (
+                            <Badge variant="outline" className="text-xs">
+                              {account.code}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {account.email ?? account.phone ?? "No contact info"}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        {account.account_manager_name ?? "Unassigned"}
+                      </TableCell>
+                      <TableCell>{account.country ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={account.is_active ? "default" : "outline"}
+                          className={
+                            account.is_active
+                              ? "bg-emerald-500 hover:bg-emerald-500 text-white"
+                              : undefined
+                          }
+                        >
+                          {account.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-muted-foreground">
+                        {account.updated_at
+                          ? dateFormatter.format(new Date(account.updated_at))
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Next steps</CardTitle>
+          <CardDescription>
+            Keep operations on track with the most used actions.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <QuickLink
+            title="Create new account"
+            description="Register a customer profile with billing and shipping data."
+            onClick={() => navigate("/customers")}
+          />
+          <QuickLink
+            title="Review orders pipeline"
+            description="Track fulfilment and ensure invoices are issued on time."
+            onClick={() => navigate("/orders")}
+          />
+          <QuickLink
+            title="Monitor inventory levels"
+            description="Jump to stock movements and warehouse metrics."
+            onClick={() => navigate("/inventory")}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+type QuickLinkProps = {
+  title: string;
+  description: string;
+  onClick: () => void;
+};
+
+function QuickLink({ title, description, onClick }: QuickLinkProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex h-full flex-col justify-between rounded-lg border bg-background p-4 text-left shadow-sm transition hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      <div>
+        <p className="text-base font-semibold flex items-center gap-2">
+          {title}
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </button>
   );
 }
